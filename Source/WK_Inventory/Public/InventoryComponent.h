@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WK_Inventory.h"
 #include "WK_Item.h"
+#include "Engine/DataAsset.h"
 
 #include "InventoryComponent.generated.h"
 
@@ -24,43 +25,43 @@ struct FItemInfo {
 
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString itemName;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* itemThumbnail;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EWK_ItemType itemType;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMesh* itemStaticMesh;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMesh* itemSkeletal;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AWK_Item> itemClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FColor itemColor;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Stackeble;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxStack;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Useble;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ClothSlot;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int WeaponSlot;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int AmmoId;
 };
 
@@ -69,11 +70,21 @@ struct FItemSlot {
 	
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
-	int ID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ID = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Amount = 0;
+
+};
+
+UCLASS()
+class WK_INVENTORY_API UItemsDatabase : public UDataAsset
+{
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	int Amount;
+	TArray<FItemInfo> items;
 
 };
 
@@ -115,11 +126,15 @@ public:
 	TArray<FItemSlot> EquipSlots;
 
 	// Start Slots
-	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> StartInventorySlots;
-	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> StartFastSlots;
-	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> StartEquipSlots;
+
+	//Data
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	UDataAsset* ItemBase;
 		
 };
