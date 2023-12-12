@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "WK_Inventory.h"
 #include "WK_Item.h"
 
 #include "InventoryComponent.generated.h"
@@ -14,10 +15,11 @@ enum class EWK_ItemType : uint8 {
 	Resource     UMETA(DisplayName = "Resource"),
 	Weapon	     UMETA(DisplayName = "Weapon"),
 	Ammo		 UMETA(DisplayName = "Ammo"),
+	Cloth		 UMETA(DisplayName = "Ammo"),
 	Key		     UMETA(DisplayName = "Key")
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FItemInfo {
 
 	GENERATED_USTRUCT_BODY()
@@ -51,9 +53,31 @@ struct FItemInfo {
 
 	UPROPERTY(EditAnywhere)
 	bool Useble;
+
+	UPROPERTY(EditAnywhere)
+	int ClothSlot;
+
+	UPROPERTY(EditAnywhere)
+	int WeaponSlot;
+
+	UPROPERTY(EditAnywhere)
+	int AmmoId;
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+USTRUCT(BlueprintType)
+struct FItemSlot {
+	
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	int ID;
+
+	UPROPERTY(EditAnywhere)
+	int Amount;
+
+};
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class WK_INVENTORY_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -66,9 +90,36 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+private:
+
+	void GenerateSlots();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//Settings
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	int AmountInventorySlots = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	int AmountFastSlots = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	int AmountEquipSlots = 0;
+
+	// Slots
+	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> InventorySlots;
+	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> FastSlots;
+	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> EquipSlots;
+
+	// Start Slots
+	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> StartInventorySlots;
+	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> StartFastSlots;
+	UPROPERTY(EditDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
+	TArray<FItemSlot> StartEquipSlots;
 		
 };

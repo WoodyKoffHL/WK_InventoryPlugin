@@ -19,8 +19,22 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Generate EmptySlots
+	GenerateSlots();
+
 	// ...
 	
+}
+
+void UInventoryComponent::GenerateSlots()
+{
+	InventorySlots.Empty();
+	for (int i = 0; i < AmountInventorySlots; i++) {
+		FItemSlot NewSlot;
+		NewSlot.Amount = 0;
+		NewSlot.ID = -1;
+		InventorySlots[i] = NewSlot;
+	}
 }
 
 

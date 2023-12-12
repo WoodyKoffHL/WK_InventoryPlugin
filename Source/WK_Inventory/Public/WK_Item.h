@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InventoryComponent.h"
+
 #include "WK_Item.generated.h"
 
 UCLASS()

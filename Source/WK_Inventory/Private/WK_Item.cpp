@@ -1,8 +1,9 @@
 // Woodykoff production. All rights reserved.
 
 
-#include "InventoryComponent.h"
 #include "WK_Item.h"
+#include "InventoryComponent.h"
+
 
 // Sets default values
 AWK_Item::AWK_Item()
