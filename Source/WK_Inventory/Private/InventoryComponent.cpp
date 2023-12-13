@@ -13,7 +13,6 @@ UInventoryComponent::UInventoryComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void UInventoryComponent::BeginPlay()
 {
@@ -23,9 +22,78 @@ void UInventoryComponent::BeginPlay()
 	GenerateSlots();
 
 	// ...
+
+}
+
+// Called every frame
+void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+
+#pragma region BlueprintFunctions
+
+void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount)
+{
+	int ItemID = PickActor->ItemID;
+	FString ItemName = FString::FromInt(ItemID);
+	int ItemAmount = PickActor->ItemAmount;
+	FName RowName = ItemBase->RowStructName;
+	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(RowName, ItemName);
+	if (!ItemRow) return;
+	int FoundedSlotIndex = -1;
+	if (UseStacks || ItemRow->itemInfo.Stackeble) {
+		int MaxStack = ItemRow->itemInfo.MaxStack;
+		// Search Slot
+		FoundedSlotIndex = SearhSlotForStack(ItemID, MaxStack);
+		if (FoundedSlotIndex == -1) {
+			FoundedSlotIndex = SearchEmptySlot();
+		}
+		if (FoundedSlotIndex == -1) return;
+		if (!InventorySlots.IsValidIndex(FoundedSlotIndex)) return;
+
+		FItemSlot FoundedSlot = InventorySlots[FoundedSlotIndex];
+		int totalAmount = FoundedSlot.Amount + ItemAmount;
+		if (totalAmount > MaxStack) {
+			int rest = totalAmount - MaxStack;
+			AddItem(PickActor, ItemID, MaxStack);
+			if (rest > MaxStack) {
+				while (rest > MaxStack) {
+					AddItem(PickActor, ItemID, MaxStack);
+					rest = rest - MaxStack;
+				}
+				AddItem(PickActor, ItemID, rest);
+				PickActor->Destroy();
+			}
+			else {
+				AddItem(PickActor, ItemID, rest);
+				PickActor->Destroy();
+			}
+			
+		}
+		else {
+			InventorySlots[FoundedSlotIndex].Amount = totalAmount;
+			InventorySlots[FoundedSlotIndex].ID = ItemID;
+		}
+	}
+	else {
+		FoundedSlotIndex = SearchEmptySlot();
+		InventorySlots[FoundedSlotIndex].Amount = 1;
+		InventorySlots[FoundedSlotIndex].ID = ItemID;
+	}
+
+
 	
 }
 
+#pragma endregion
+
+
+#pragma region PrivateFunctions
+
+// Slots Functions
 void UInventoryComponent::GenerateSlots()
 {
 	InventorySlots.Empty();
@@ -72,12 +140,34 @@ void UInventoryComponent::GenerateSlots()
 	StartEquipSlots.Empty();
 }
 
-
-// Called every frame
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UInventoryComponent::PreSaveGame()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	// For save and load inventory - use start slots
+	StartInventorySlots = InventorySlots;
+	StartFastSlots = FastSlots;
+	StartEquipSlots = EquipSlots;
+	InventorySlots.Empty();
+	FastSlots.Empty();
+	EquipSlots.Empty();
 }
 
+int UInventoryComponent::SearhSlotForStack(int it_id, int it_maxStack)
+{
+	if (it_id == -1 || it_maxStack <= 0) return -1;
+	for (int i = 0; i <= InventorySlots.Num(); i++) {
+		if (InventorySlots[i].ID == it_id || InventorySlots[i].Amount < it_maxStack ) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int UInventoryComponent::SearchEmptySlot()
+{
+	for (int i = 0; i <= InventorySlots.Num(); i++) {
+		if (InventorySlots[i].ID == -1) return i;
+	}
+	return -1;
+}
+
+#pragma endregion

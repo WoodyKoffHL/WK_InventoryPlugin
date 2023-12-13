@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InventoryComponent.h"
+
 #include "WK_PickUpActor.generated.h"
 
 UCLASS()
@@ -14,6 +16,12 @@ class WK_INVENTORY_API AWK_PickUpActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWK_PickUpActor();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item info")
+	int ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item info")
+	int ItemAmount;
 
 protected:
 	// Called when the game starts or when spawned

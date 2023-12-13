@@ -4,26 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+// WK
 #include "WK_Inventory.h"
 #include "WK_Item.h"
+#include "WK_PickUpActor.h"
+// Data Base
 #include "Engine/DataAsset.h"
-
+#include "Engine/DataTable.h"
+// Generate
 #include "InventoryComponent.generated.h"
 
 UENUM(BlueprintType)
 enum class EWK_ItemType : uint8 {
 	Quest        UMETA(DisplayName = "For Quest"),
+	Using        UMETA(DisplayName = "For Using"),
 	Resource     UMETA(DisplayName = "Resource"),
 	Weapon	     UMETA(DisplayName = "Weapon"),
 	Ammo		 UMETA(DisplayName = "Ammo"),
-	Cloth		 UMETA(DisplayName = "Ammo"),
+	Cloth		 UMETA(DisplayName = "Cloth"),
 	Key		     UMETA(DisplayName = "Key")
 };
 
 USTRUCT(BlueprintType)
 struct FItemInfo {
 
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString itemName;
@@ -68,7 +73,7 @@ struct FItemInfo {
 USTRUCT(BlueprintType)
 struct FItemSlot {
 	
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ID = -1;
@@ -78,14 +83,19 @@ struct FItemSlot {
 
 };
 
-UCLASS()
-class WK_INVENTORY_API UItemsDatabase : public UDataAsset
+USTRUCT(BlueprintType)
+struct FItemsData : public FTableRowBase
 {
 	GENERATED_BODY()
+public:
 
-	UPROPERTY(EditAnywhere)
-	TArray<FItemInfo> items;
+	/** Item struct **/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemInfo itemInfo;
 
+	/** description **/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Description;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
@@ -97,6 +107,9 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void AddItem(AWK_PickUpActor* PickActor, int ID, int Amount);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -104,6 +117,11 @@ protected:
 private:
 
 	void GenerateSlots();
+	void PreSaveGame();
+	int SearhSlotForStack(int it_id, int it_maxStack);
+	int SearchEmptySlot();
+
+
 
 public:	
 	// Called every frame
@@ -135,6 +153,12 @@ public:
 
 	//Data
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
-	UDataAsset* ItemBase;
+	UDataTable* ItemBase;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	bool UseStacks;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", meta = (DisplayName = "Using indexes of Equip slots"))
+	bool UseEquipSlotsIndexes;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", meta = (DisplayName = "Using indexes of Fast slots"))
+	bool UseFastSlotsIndexes;
 		
 };
