@@ -40,7 +40,7 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 	int ItemID = PickActor->ItemID;
 	FString ItemName = FString::FromInt(ItemID);
 	int ItemAmount = PickActor->ItemAmount;
-	FName RowName = ItemBase->RowStructName;
+	FName RowName = ItemBase->GetRowNames()[0];
 	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(RowName, ItemName);
 	if (!ItemRow) return;
 	int FoundedSlotIndex = -1;
@@ -76,12 +76,14 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 		else {
 			InventorySlots[FoundedSlotIndex].Amount = totalAmount;
 			InventorySlots[FoundedSlotIndex].ID = ItemID;
+			PickActor->Destroy();
 		}
 	}
 	else {
 		FoundedSlotIndex = SearchEmptySlot();
 		InventorySlots[FoundedSlotIndex].Amount = 1;
 		InventorySlots[FoundedSlotIndex].ID = ItemID;
+		PickActor->Destroy();
 	}
 
 

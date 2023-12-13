@@ -89,6 +89,10 @@ struct FItemsData : public FTableRowBase
 	GENERATED_BODY()
 public:
 
+	/** Item ID **/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ID;
+
 	/** Item struct **/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemInfo itemInfo;
