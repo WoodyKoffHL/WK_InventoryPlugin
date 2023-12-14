@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "InventoryComponent.h"
 
 #include "WK_PickUpActor.generated.h"
@@ -22,6 +23,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item info")
 	int ItemAmount;
+
+
+	//Data
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	class UDataTable* ItemBase;
 
 protected:
 	// Called when the game starts or when spawned
