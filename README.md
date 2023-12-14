@@ -58,8 +58,16 @@
 
 ![image](https://github.com/WoodyKoffHL/WK_InventoryPlugin/assets/116869579/5c641135-8328-4152-b8b1-2f1ad2143ba8)
 
-**AddItem** - Добавляет предмет. В зависимости от настроек - стакает предметы. Возвращает boolean - был ли добавлен предмет или нет.
-Get
+**Add Item** - Добавляет предмет. В зависимости от настроек - стакает предметы. Возвращает boolean - был ли добавлен предмет или нет.
+
+![image](https://github.com/WoodyKoffHL/WK_InventoryPlugin/assets/116869579/bb0620a1-0066-49c8-8980-3dabe2d974c4)
+
+**Swap Items** - меняет местами 2 слота. Принимает 2 индекса
+
+![image](https://github.com/WoodyKoffHL/WK_InventoryPlugin/assets/116869579/6eb43427-d69e-46a1-8de1-5665a6bc6bec)
+
+**Get Item Info** - Принимает аргумент - ID предмета из базы (Не индекс). На выходе выдают структуру из базы данных. Является Pure функцией.
+
 
 **<h2>11. Описание Blueprint Ivents в Inventory Component</h2>**
 
