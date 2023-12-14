@@ -61,6 +61,6 @@
 **AddItem** - Добавляет предмет. В зависимости от настроек - стакает предметы. Возвращает boolean - был ли добавлен предмет или нет.
 Get
 
-**11. Описание Blueprint Ivents в Inventory Component**
+**<h2>11. Описание Blueprint Ivents в Inventory Component</h2>**
 
 
