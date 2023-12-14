@@ -36,7 +36,7 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 #pragma region BlueprintFunctions
 
-void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount)
+bool UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount)
 {
 	
 
@@ -44,18 +44,18 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 	FString ItemName = FString::FromInt(ItemID);
 	int LocalItemAmount = PickActor->ItemAmount;
 	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(FName(ItemName), ItemName);
-	if (!ItemRow) return;
+	if (!ItemRow) return false;
 	
 	if (UseStacks) {
 		// Settings Stack On
 		if (!ItemRow->itemInfo.Stackeble) {
 			// Do not Stack Item
 			int FoundedSlotIndex = SearchEmptySlot();
-			if (FoundedSlotIndex < 0) return;
+			if (FoundedSlotIndex < 0) return false;
 			InventorySlots[FoundedSlotIndex].Amount = 1;
 			InventorySlots[FoundedSlotIndex].ID = ItemID;
 			PickActor->Destroy();
-			return;
+			return true;
 		}
 		// If Item Stack
 		int MaxStack = ItemRow->itemInfo.MaxStack;
@@ -80,7 +80,7 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 					// if last slot be stacked
 					if (SearchEmptySlot() < 0) {
 						PickActor->ItemAmount = rest;
-						return;
+						return true;
 					}
 					while (rest > MaxStack) {
 						NewInvSlot = SearchEmptySlot();
@@ -91,7 +91,7 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 					}
 					if (rest > 0) {
 						NewInvSlot = SearchEmptySlot();
-						if (NewInvSlot < 0) return;
+						if (NewInvSlot < 0) return true;
 						InventorySlots[NewInvSlot].ID = ItemID;
 						InventorySlots[NewInvSlot].Amount = rest;
 					}
@@ -101,6 +101,7 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 				InventorySlots[StackIndex].ID = ItemID;
 				InventorySlots[StackIndex].Amount = TotalAmount;
 				PickActor->Destroy();
+				return true;
 			}
 		} // If dont find any slot to add - nothing going on
 		
@@ -108,11 +109,34 @@ void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 	else {
 		// Do not Stack in settings
 		int FoundedSlotIndex = SearchEmptySlot();
-		if (FoundedSlotIndex < 0) return;
+		if (FoundedSlotIndex < 0) return false;
 		InventorySlots[FoundedSlotIndex].Amount = 1;
 		InventorySlots[FoundedSlotIndex].ID = ItemID;
 		PickActor->Destroy();
+		return true;
 	}	
+	return false;
+}
+
+FItemInfo UInventoryComponent::GetItemInfo(int id)
+{
+	FItemInfo OutInfo;
+	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(FName(FString::FromInt(id)), FString::FromInt(id));
+	if (ItemRow) {
+		OutInfo = ItemRow->itemInfo;
+	}
+	return OutInfo;
+}
+
+void UInventoryComponent::SwapItems(int indexIn, int indexOut)
+{
+	if (!InventorySlots.IsValidIndex(indexIn)) return;
+	if (!InventorySlots.IsValidIndex(indexOut)) return;
+	FItemSlot Inbound = InventorySlots[indexIn];
+	FItemSlot Outbound = InventorySlots[indexOut];
+	InventorySlots[indexOut] = Inbound;
+	InventorySlots[indexIn] = Outbound;
+	return;
 }
 
 #pragma endregion

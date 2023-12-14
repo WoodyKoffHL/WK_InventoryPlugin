@@ -128,7 +128,13 @@ public:
 	UInventoryComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
-	void AddItem(AWK_PickUpActor* PickActor, int ID, int Amount);
+	bool AddItem(AWK_PickUpActor* PickActor, int ID, int Amount);
+
+	UFUNCTION(BlueprintPure, Category = "Inventory Plugin")
+	FItemInfo GetItemInfo(int id);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void SwapItems(int indexIn, int indexOut);
 
 protected:
 	// Called when the game starts
