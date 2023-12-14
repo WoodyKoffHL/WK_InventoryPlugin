@@ -84,6 +84,22 @@ struct FItemSlot {
 };
 
 USTRUCT(BlueprintType)
+struct FItemFastSlot {
+
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ID = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Amount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool Active = false;
+
+};
+
+USTRUCT(BlueprintType)
 struct FItemsData : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -118,12 +134,14 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+
 private:
 
 	void GenerateSlots();
 	void PreSaveGame();
 	int SearhSlotForStack(int it_id, int it_maxStack);
 	int SearchEmptySlot();
+	FName RowName;
 
 
 
@@ -143,7 +161,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> InventorySlots;
 	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
-	TArray<FItemSlot> FastSlots;
+	TArray<FItemFastSlot> FastSlots;
 	UPROPERTY(VisibleDefaultsOnly, SaveGame, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> EquipSlots;
 
@@ -151,7 +169,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> StartInventorySlots;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
-	TArray<FItemSlot> StartFastSlots;
+	TArray<FItemFastSlot> StartFastSlots;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slots")
 	TArray<FItemSlot> StartEquipSlots;
 

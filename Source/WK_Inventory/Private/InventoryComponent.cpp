@@ -21,6 +21,7 @@ void UInventoryComponent::BeginPlay()
 	// Generate EmptySlots
 	GenerateSlots();
 
+
 	// ...
 
 }
@@ -37,57 +38,81 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount)
 {
+	
+
 	int ItemID = PickActor->ItemID;
 	FString ItemName = FString::FromInt(ItemID);
-	int ItemAmount = PickActor->ItemAmount;
-	FName RowName = ItemBase->GetRowNames()[0];
-	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(RowName, ItemName);
+	int LocalItemAmount = PickActor->ItemAmount;
+	FItemsData* ItemRow = ItemBase->FindRow<FItemsData>(FName(ItemName), ItemName);
 	if (!ItemRow) return;
-	int FoundedSlotIndex = -1;
-	if (UseStacks || ItemRow->itemInfo.Stackeble) {
-		int MaxStack = ItemRow->itemInfo.MaxStack;
-		// Search Slot
-		FoundedSlotIndex = SearhSlotForStack(ItemID, MaxStack);
-		if (FoundedSlotIndex == -1) {
-			FoundedSlotIndex = SearchEmptySlot();
-		}
-		if (FoundedSlotIndex == -1) return;
-		if (!InventorySlots.IsValidIndex(FoundedSlotIndex)) return;
-
-		FItemSlot FoundedSlot = InventorySlots[FoundedSlotIndex];
-		int totalAmount = FoundedSlot.Amount + ItemAmount;
-		if (totalAmount > MaxStack) {
-			int rest = totalAmount - MaxStack;
-			AddItem(PickActor, ItemID, MaxStack);
-			if (rest > MaxStack) {
-				while (rest > MaxStack) {
-					AddItem(PickActor, ItemID, MaxStack);
-					rest = rest - MaxStack;
-				}
-				AddItem(PickActor, ItemID, rest);
-				PickActor->Destroy();
-			}
-			else {
-				AddItem(PickActor, ItemID, rest);
-				PickActor->Destroy();
-			}
-			
-		}
-		else {
-			InventorySlots[FoundedSlotIndex].Amount = totalAmount;
+	
+	if (UseStacks) {
+		// Settings Stack On
+		if (!ItemRow->itemInfo.Stackeble) {
+			// Do not Stack Item
+			int FoundedSlotIndex = SearchEmptySlot();
+			if (FoundedSlotIndex < 0) return;
+			InventorySlots[FoundedSlotIndex].Amount = 1;
 			InventorySlots[FoundedSlotIndex].ID = ItemID;
 			PickActor->Destroy();
+			return;
 		}
+		// If Item Stack
+		int MaxStack = ItemRow->itemInfo.MaxStack;
+		int StackIndex = SearhSlotForStack(ItemID, MaxStack);
+		int NewInvSlot;
+
+		// If dont found to stack slot - search empty slot
+		if (StackIndex < 0) {
+			StackIndex = SearchEmptySlot();
+		}
+
+		if (StackIndex >= 0) {
+			// If founded for stack
+			FItemSlot StackSlot = InventorySlots[StackIndex];
+			int TotalAmount = StackSlot.Amount + Amount;
+			// Check total amount with slot
+			if (TotalAmount > MaxStack) {
+				int rest = TotalAmount;
+				InventorySlots[StackIndex].ID = ItemID;
+				InventorySlots[StackIndex].Amount = MaxStack;
+				rest = TotalAmount - MaxStack;
+					// if last slot be stacked
+					if (SearchEmptySlot() < 0) {
+						PickActor->ItemAmount = rest;
+						return;
+					}
+					while (rest > MaxStack) {
+						NewInvSlot = SearchEmptySlot();
+						if (!InventorySlots.IsValidIndex(NewInvSlot)) break;
+						InventorySlots[NewInvSlot].ID = ItemID;
+						InventorySlots[NewInvSlot].Amount = MaxStack;
+						rest = TotalAmount - MaxStack;
+					}
+					if (rest > 0) {
+						NewInvSlot = SearchEmptySlot();
+						if (NewInvSlot < 0) return;
+						InventorySlots[NewInvSlot].ID = ItemID;
+						InventorySlots[NewInvSlot].Amount = rest;
+					}
+					PickActor->Destroy();
+			}
+			else  {
+				InventorySlots[StackIndex].ID = ItemID;
+				InventorySlots[StackIndex].Amount = TotalAmount;
+				PickActor->Destroy();
+			}
+		} // If dont find any slot to add - nothing going on
+		
 	}
 	else {
-		FoundedSlotIndex = SearchEmptySlot();
+		// Do not Stack in settings
+		int FoundedSlotIndex = SearchEmptySlot();
+		if (FoundedSlotIndex < 0) return;
 		InventorySlots[FoundedSlotIndex].Amount = 1;
 		InventorySlots[FoundedSlotIndex].ID = ItemID;
 		PickActor->Destroy();
-	}
-
-
-	
+	}	
 }
 
 #pragma endregion
@@ -113,13 +138,14 @@ void UInventoryComponent::GenerateSlots()
 
 	FastSlots.Empty();
 	for (int i = 0; i < AmountFastSlots; i++) {
-		FItemSlot NewSlot;
+		FItemFastSlot NewSlot;
 		if (StartFastSlots.IsValidIndex(i)) {
 			NewSlot = StartFastSlots[i];
 		}
 		else {
 			NewSlot.Amount = 0;
 			NewSlot.ID = -1;
+			NewSlot.Active = false;
 		}
 		FastSlots.Add(NewSlot);
 	}
@@ -157,8 +183,15 @@ int UInventoryComponent::SearhSlotForStack(int it_id, int it_maxStack)
 {
 	if (it_id == -1 || it_maxStack <= 0) return -1;
 	for (int i = 0; i <= InventorySlots.Num(); i++) {
-		if (InventorySlots[i].ID == it_id || InventorySlots[i].Amount < it_maxStack ) {
-			return i;
+		if (InventorySlots.IsValidIndex(i)) {
+			if (InventorySlots[i].ID == it_id) {
+				if (InventorySlots[i].Amount == it_maxStack) {
+					continue;
+				}
+				else {
+					return i;
+				}
+			}
 		}
 	}
 	return -1;
@@ -166,7 +199,9 @@ int UInventoryComponent::SearhSlotForStack(int it_id, int it_maxStack)
 
 int UInventoryComponent::SearchEmptySlot()
 {
-	for (int i = 0; i <= InventorySlots.Num(); i++) {
+	int ArrayNum = InventorySlots.Num();
+	for (int i = 0; i <= 100; i++) {
+		if (!InventorySlots.IsValidIndex(i)) return -1;
 		if (InventorySlots[i].ID == -1) return i;
 	}
 	return -1;
