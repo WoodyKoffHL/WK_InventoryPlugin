@@ -22,7 +22,7 @@
       10.Описание CPP Компонента
 
 
-**1.Установка и настройка**
+**<h2>1.Установка и настройка</h2>**
 
 Создаем необходимые Блюпринты под наши компоненты, итемы и т.п. Начинаем с Компонента Inventory component
 
@@ -52,8 +52,14 @@
 
 
 
-**10. Описание С++ Inventory Component**
+**<h2>10. Описание С++ Inventory Component</h2>**
 
+**<h3>Функции для Blueprints</h3>**
+
+![image](https://github.com/WoodyKoffHL/WK_InventoryPlugin/assets/116869579/5c641135-8328-4152-b8b1-2f1ad2143ba8)
+
+**AddItem** - Добавляет предмет. В зависимости от настроек - стакает предметы. Возвращает boolean - был ли добавлен предмет или нет.
+Get
 
 **11. Описание Blueprint Ivents в Inventory Component**
 
