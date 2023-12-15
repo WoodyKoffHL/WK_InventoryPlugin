@@ -118,6 +118,109 @@ bool UInventoryComponent::AddItem(AWK_PickUpActor* PickActor, int ID, int Amount
 	return false;
 }
 
+bool UInventoryComponent::UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex, int Amount)
+{
+	if (InventoryType != EWK_OwnerType::Character) return false;
+
+	// USING FROM INVENTORY SLOTS
+	if (SlotsType == EWK_SlotsType::Inventory) {
+		if (!InventorySlots.IsValidIndex(SlotIndex)) return false;
+
+		// Initialize variables
+		FItemSlot ItemSlot = InventorySlots[SlotIndex];
+		FItemInfo ItemInfo = GetItemInfo(ItemSlot.ID);
+		FTransform SpawnTransform = GetOwner()->GetActorTransform();
+		UWorld* ThisLevel = GetWorld();
+		if (!ThisLevel) return false;
+		TSubclassOf<AWK_Item> ItemClass = ItemInfo.Item;
+		AWK_Item* SpawnItem;
+
+		switch (ItemInfo.itemType)
+		{
+		// USING TYPE //
+		/////////////////////////////////////////////////////////////////////
+		case EWK_ItemType::Using:
+			if (!ItemInfo.Useble) return false;
+			if (Amount > 1) {
+				if (Amount > ItemSlot.Amount) {
+					// Dont have this items amount
+					CantUseEvent(ItemInfo, Amount);
+					return false;
+				}
+			}
+			if (Amount < 1) Amount = 1;
+			if (!ThisLevel && !ItemClass) return false;
+			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
+			if (!SpawnItem) return false;
+			SpawnItem->CallUsingItem(GetOwner(), ItemSlot.ID, Amount);
+			SpawnItem->Destroy();
+			UsedItemEvent(ItemInfo, Amount);
+			InventorySlots[SlotIndex].Amount = InventorySlots[SlotIndex].Amount - Amount;
+			if (InventorySlots[SlotIndex].Amount <= 0) {
+				InventorySlots[SlotIndex].Amount = 0;
+				InventorySlots[SlotIndex].ID = -1;
+			}
+			return true;
+			break;
+		// QUEST ITEM TYPE //
+		/////////////////////////////////////////////////////////////////////
+		case EWK_ItemType::Quest:
+			break;
+		}		
+	}
+	
+	// USING IN FAST SLOT
+	else if (SlotsType == EWK_SlotsType::Fast){
+		// Initialize variables
+		FItemFastSlot ItemSlot = FastSlots[SlotIndex];
+		FItemInfo ItemInfo = GetItemInfo(ItemSlot.ID);
+		FTransform SpawnTransform = GetOwner()->GetActorTransform();
+		UWorld* ThisLevel = GetWorld();
+		if (!ThisLevel) return false;
+		TSubclassOf<AWK_Item> ItemClass = ItemInfo.Item;
+		AWK_Item* SpawnItem;
+
+		switch (ItemInfo.itemType)
+		{
+			// USING TYPE //
+			/////////////////////////////////////////////////////////////////////
+		case EWK_ItemType::Using:
+			if (!ItemInfo.Useble) return false;
+			if (Amount > 1) {
+				if (Amount > ItemSlot.Amount) {
+					// Dont have this items amount
+					CantUseEvent(ItemInfo, Amount);
+					return false;
+				}
+			}
+			if (Amount < 1) Amount = 1;
+			if (!ThisLevel && !ItemClass) return false;
+			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
+			if (!SpawnItem) return false;
+			SpawnItem->CallUsingItem(GetOwner(), ItemSlot.ID, Amount);
+			SpawnItem->Destroy();
+			UsedItemEvent(ItemInfo, Amount);
+			FastSlots[SlotIndex].Amount = FastSlots[SlotIndex].Amount - Amount;
+			if (FastSlots[SlotIndex].Amount <= 0) {
+				FastSlots[SlotIndex].Amount = 0;
+				FastSlots[SlotIndex].ID = -1;
+			}
+			return true;
+			break;
+			// QUEST ITEM TYPE //
+			/////////////////////////////////////////////////////////////////////
+		case EWK_ItemType::Quest:
+			break;
+		}
+	}
+	
+	// USING IN EQUIP SLOTS
+	else if (SlotsType == EWK_SlotsType::Equip) {
+
+	}
+	return false;
+}
+
 FItemInfo UInventoryComponent::GetItemInfo(int id)
 {
 	FItemInfo OutInfo;

@@ -25,4 +25,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void CallUsingItem(AActor* OwnerActor, int ItemID, int ItemAmount);
+
 };
