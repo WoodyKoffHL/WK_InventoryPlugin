@@ -25,4 +25,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void CallAddItem(class AWK_PickUpActor* PickActor, int ID, int Amount);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetNearItem(class AWK_PickUpActor* PickActor, bool Activate);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void FastUseItem(class AWK_PickUpActor* PickActor, int ID, int Amount);
 };

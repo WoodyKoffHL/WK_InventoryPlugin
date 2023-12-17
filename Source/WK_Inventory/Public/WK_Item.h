@@ -25,7 +25,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Using Item")
+	bool canUse = true;
+
+	UFUNCTION(BlueprintCallable, Category = "Using Item")
+	void UseThisItem(AActor* OwnerActor, int ItemID, int ItemAmount);
+
+	UFUNCTION(BlueprintCallable, Category = "Using Item")
+	bool CanUseThisItem(AActor* OwnerActor, int ItemID, int ItemAmount);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CheckCanUsingEvent(AActor* OwnerActor, int ItemID, int ItemAmount);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void CallUsingItem(AActor* OwnerActor, int ItemID, int ItemAmount);
+
+
 
 };

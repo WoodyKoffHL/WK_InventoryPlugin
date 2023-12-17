@@ -28,6 +28,7 @@ UENUM(BlueprintType)
 enum class EWK_ItemType : uint8 {
 	Quest        UMETA(DisplayName = "For Quest"),
 	Using        UMETA(DisplayName = "For Using"),
+	FastUsing    UMETA(DisplayName = "For Fast Using"),
 	Resource     UMETA(DisplayName = "Resource"),
 	Weapon	     UMETA(DisplayName = "Weapon"),
 	Ammo		 UMETA(DisplayName = "Ammo"),
@@ -79,6 +80,9 @@ struct FItemInfo {
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Useble;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Immediately (fast pick up)"))
+	bool Immediately = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ClothSlot;
@@ -161,7 +165,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	bool UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex, int Amount);
 	
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void SetNearItem(AWK_PickUpActor* PickActor, bool Activate);
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void UseItemByID(int id, int Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int ID, int Amount);
 
 protected:
 	// Called when the game starts
@@ -224,6 +235,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", meta = (DisplayName = "Using indexes of Fast slots"))
 	bool UseFastSlotsIndexes;
 
+	// Pick ups
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Pick Ups")
+	AWK_PickUpActor* NearPickActor;
+	
 public:
 
 #pragma region BlueprintImplementableEvents

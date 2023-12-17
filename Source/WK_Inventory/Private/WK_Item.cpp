@@ -27,3 +27,21 @@ void AWK_Item::Tick(float DeltaTime)
 
 }
 
+void AWK_Item::UseThisItem(AActor* OwnerActor, int ItemID, int ItemAmount)
+{
+	if (CanUseThisItem(OwnerActor, ItemID, ItemAmount)) {
+		CallUsingItem(OwnerActor, ItemID, ItemAmount);
+		this->Destroy();
+	}
+	else {
+		this->Destroy();
+	}
+}
+
+bool AWK_Item::CanUseThisItem(AActor* OwnerActor, int ItemID, int ItemAmount)
+{
+	CheckCanUsingEvent(OwnerActor, ItemID, ItemAmount);
+	return canUse;
+}
+
+

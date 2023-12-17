@@ -152,8 +152,7 @@ bool UInventoryComponent::UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex,
 			if (!ThisLevel && !ItemClass) return false;
 			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
 			if (!SpawnItem) return false;
-			SpawnItem->CallUsingItem(GetOwner(), ItemSlot.ID, Amount);
-			SpawnItem->Destroy();
+			SpawnItem->UseThisItem(GetOwner(), ItemSlot.ID, Amount);
 			UsedItemEvent(ItemInfo, Amount);
 			InventorySlots[SlotIndex].Amount = InventorySlots[SlotIndex].Amount - Amount;
 			if (InventorySlots[SlotIndex].Amount <= 0) {
@@ -197,8 +196,7 @@ bool UInventoryComponent::UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex,
 			if (!ThisLevel && !ItemClass) return false;
 			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
 			if (!SpawnItem) return false;
-			SpawnItem->CallUsingItem(GetOwner(), ItemSlot.ID, Amount);
-			SpawnItem->Destroy();
+			SpawnItem->UseThisItem(GetOwner(), ItemSlot.ID, Amount);
 			UsedItemEvent(ItemInfo, Amount);
 			FastSlots[SlotIndex].Amount = FastSlots[SlotIndex].Amount - Amount;
 			if (FastSlots[SlotIndex].Amount <= 0) {
@@ -220,6 +218,77 @@ bool UInventoryComponent::UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex,
 	}
 	return false;
 }
+
+void UInventoryComponent::SetNearItem(AWK_PickUpActor* PickActor, bool Activate)
+{
+	if (Activate) {
+		NearPickActor = PickActor;
+	}
+	else {
+		NearPickActor = nullptr;
+	}
+}
+
+void UInventoryComponent::UseItemByID(int id, int Amount)
+{
+	if (InventoryType != EWK_OwnerType::Character) return;
+
+
+		// Initialize variables
+		FItemInfo ItemInfo = GetItemInfo(id);
+		FTransform SpawnTransform = GetOwner()->GetActorTransform();
+		UWorld* ThisLevel = GetWorld();
+		if (!ThisLevel) return;
+		TSubclassOf<AWK_Item> ItemClass = ItemInfo.Item;
+		AWK_Item* SpawnItem;
+
+		if(ItemInfo.itemType == EWK_ItemType::Using && ItemInfo.itemType == EWK_ItemType::FastUsing &&
+			ItemInfo.itemType == EWK_ItemType::Quest) {
+			if (Amount < 1) Amount = 1;
+			if (!ThisLevel && !ItemClass) return;
+			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
+			if (!SpawnItem) return;
+			SpawnItem->CheckCanUsingEvent(GetOwner(), id, Amount);
+			if (SpawnItem->canUse) {
+				SpawnItem->UseThisItem(GetOwner(), id, Amount);
+				UsedItemEvent(ItemInfo, Amount);
+			}
+		}
+}
+
+void UInventoryComponent::FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int ID, int Amount)
+{
+	if (InventoryType != EWK_OwnerType::Character) return;
+
+
+	// Initialize variables
+	FItemInfo ItemInfo = GetItemInfo(ID);
+	FTransform SpawnTransform = GetOwner()->GetActorTransform();
+	UWorld* ThisLevel = GetWorld();
+	if (!ThisLevel) return;
+	TSubclassOf<AWK_Item> ItemClass = ItemInfo.Item;
+	AWK_Item* SpawnItem;
+
+	switch (ItemInfo.itemType)
+	{
+		// USING TYPE //
+		/////////////////////////////////////////////////////////////////////
+	case EWK_ItemType::FastUsing:
+		if (Amount < 1) Amount = 1;
+		if (!ThisLevel && !ItemClass) return;
+		SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
+		if (!SpawnItem) return;
+		SpawnItem->CheckCanUsingEvent(GetOwner(), ID, Amount);
+		if (SpawnItem->canUse) {
+			SpawnItem->UseThisItem(GetOwner(), ID, Amount);
+			UsedItemEvent(ItemInfo, Amount);
+			PickActor->Destroy();
+		}
+		break;
+	}
+}
+
+
 
 FItemInfo UInventoryComponent::GetItemInfo(int id)
 {
