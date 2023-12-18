@@ -174,6 +174,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int ID, int Amount);
 
+	//New Functions
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void AddItemToFastSlot(int indexIn, int indexOut);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void AddItemToEquipSlot(int indexIn, int indexOut);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void AddItemFromFastSlot(int indexIn, int indexOut);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	void AddItemFromEquipSlot(int indexIn, int indexOut);
+
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

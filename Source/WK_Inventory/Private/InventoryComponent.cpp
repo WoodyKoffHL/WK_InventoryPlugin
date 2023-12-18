@@ -288,8 +288,6 @@ void UInventoryComponent::FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int 
 	}
 }
 
-
-
 FItemInfo UInventoryComponent::GetItemInfo(int id)
 {
 	FItemInfo OutInfo;
@@ -310,6 +308,43 @@ void UInventoryComponent::SwapItems(int indexIn, int indexOut)
 	InventorySlots[indexIn] = Outbound;
 	return;
 }
+
+
+void UInventoryComponent::AddItemToFastSlot(int indexIn, int indexOut)
+{
+	if (!InventorySlots.IsValidIndex(indexOut)) return;
+	if (!FastSlots.IsValidIndex(indexIn)) return;
+	FItemSlot InvSlotOut = InventorySlots[indexOut];
+	FItemFastSlot FastSlotIn = FastSlots[indexIn];
+
+	FItemSlot LocalSlot;
+	LocalSlot.ID = FastSlotIn.ID;
+	LocalSlot.Amount = FastSlotIn.Amount;
+
+	FItemFastSlot LocalFast;
+	LocalFast.ID = InvSlotOut.ID;
+	LocalFast.Amount = InvSlotOut.Amount;
+
+	InventorySlots[indexOut] = LocalSlot;
+	FastSlots[indexIn] = LocalFast;
+
+}
+
+void UInventoryComponent::AddItemToEquipSlot(int indexIn, int indexOut)
+{
+	// TO EQUIP SLOT
+}
+
+void UInventoryComponent::AddItemFromFastSlot(int indexIn, int indexOut)
+{
+	// FROM FAST SLOT
+}
+
+void UInventoryComponent::AddItemFromEquipSlot(int indexIn, int indexOut)
+{
+	// FROM EQUIP SLOT
+}
+
 
 #pragma endregion
 
