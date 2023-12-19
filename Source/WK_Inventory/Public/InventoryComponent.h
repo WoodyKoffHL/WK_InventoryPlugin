@@ -174,6 +174,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int ID, int Amount);
 
+
 	//New Functions
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
@@ -187,7 +188,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void AddItemFromEquipSlot(int indexIn, int indexOut);
-
 
 
 protected:
