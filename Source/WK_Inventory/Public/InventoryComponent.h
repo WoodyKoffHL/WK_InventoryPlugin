@@ -63,8 +63,8 @@ struct FItemInfo {
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMesh* itemSkeletal;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AWK_Item> itemClass;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TSubclassOf<AWK_Item> itemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FColor itemColor;

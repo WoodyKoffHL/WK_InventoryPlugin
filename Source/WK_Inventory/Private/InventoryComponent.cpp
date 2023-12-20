@@ -152,12 +152,23 @@ bool UInventoryComponent::UseItemAtIndex(EWK_SlotsType SlotsType, int SlotIndex,
 			if (!ThisLevel && !ItemClass) return false;
 			SpawnItem = ThisLevel->SpawnActor<AWK_Item>(ItemClass, SpawnTransform);
 			if (!SpawnItem) return false;
-			SpawnItem->UseThisItem(GetOwner(), ItemSlot.ID, Amount);
-			UsedItemEvent(ItemInfo, Amount);
-			InventorySlots[SlotIndex].Amount = InventorySlots[SlotIndex].Amount - Amount;
-			if (InventorySlots[SlotIndex].Amount <= 0) {
-				InventorySlots[SlotIndex].Amount = 0;
-				InventorySlots[SlotIndex].ID = -1;
+
+			SpawnItem->CheckCanUsingEvent(GetOwner(), ItemSlot.ID, Amount);
+			if (SpawnItem->canUse) {
+				SpawnItem->UseThisItem(GetOwner(), ItemSlot.ID, Amount);
+				UsedItemEvent(ItemInfo, Amount);
+				InventorySlots[SlotIndex].Amount = InventorySlots[SlotIndex].Amount - Amount;
+				if (InventorySlots[SlotIndex].Amount <= 0) {
+					InventorySlots[SlotIndex].Amount = 0;
+					InventorySlots[SlotIndex].ID = -1;
+				}
+				return true;
+			}
+			else {
+				if (SpawnItem) {
+					SpawnItem->Destroy();
+				}
+				return false;
 			}
 			return true;
 			break;
