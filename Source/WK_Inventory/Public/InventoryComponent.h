@@ -92,6 +92,9 @@ struct FItemInfo {
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int AmmoId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool OneExemple;
 };
 
 USTRUCT(BlueprintType)
@@ -156,6 +159,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	bool AddItem(AWK_PickUpActor* PickActor, int ID, int Amount);
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	bool AddOneExampleItem(AWK_PickUpActor* PickActor);
+
 	UFUNCTION(BlueprintPure, Category = "Inventory Plugin")
 	FItemInfo GetItemInfo(int id);
 
@@ -174,9 +180,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void FastUseItemFromPickUp(AWK_PickUpActor* PickActor, int ID, int Amount);
 
-
-	//New Functions
-
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void AddItemToFastSlot(int indexIn, int indexOut);
 
@@ -188,6 +191,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
 	void AddItemFromEquipSlot(int indexIn, int indexOut);
+
+	//New Functions
+	UFUNCTION(BlueprintCallable, Category = "Inventory Plugin")
+	int SaerchInventoryItem(int id, int amount);
 
 
 protected:
