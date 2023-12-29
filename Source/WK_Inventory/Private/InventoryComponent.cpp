@@ -137,6 +137,7 @@ bool UInventoryComponent::AddOneExampleItem(AWK_PickUpActor* PickActor)
 		int FoundItemSlot = SaerchInventoryItem(ItemID, LocalItemAmount);
 		if (FoundItemSlot != -1) {
 			if (ItemRow->itemInfo.Stackeble) {
+				if (!InventorySlots.IsValidIndex(FoundItemSlot)) return false;
 				if (InventorySlots[FoundItemSlot].Amount == ItemRow->itemInfo.MaxStack) {
 					return false;
 				}
@@ -144,6 +145,11 @@ bool UInventoryComponent::AddOneExampleItem(AWK_PickUpActor* PickActor)
 					int TotalAmount = InventorySlots[FoundItemSlot].Amount + LocalItemAmount;
 					if (TotalAmount >= ItemRow->itemInfo.MaxStack) {
 						InventorySlots[FoundItemSlot].Amount = ItemRow->itemInfo.MaxStack;
+						PickActor->Destroy();
+						return true;
+					}
+					else {
+						InventorySlots[FoundItemSlot].Amount = TotalAmount;
 						PickActor->Destroy();
 						return true;
 					}
@@ -426,9 +432,9 @@ int UInventoryComponent::SaerchInventoryItem(int id, int amount)
 {
 	int result = -1;
 	for (int i = 0; i <= InventorySlots.Num(); i++) {
-		if (InventorySlots[i].ID == id) {
-			if (InventorySlots[i].Amount >= amount) {
-				return i;
+		if (InventorySlots.IsValidIndex(i)) {
+			if (InventorySlots[i].ID == id) {
+					return i;
 			}
 		}
 	}
